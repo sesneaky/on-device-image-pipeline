@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Xcode — user-specific state
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+
+# Obj-C/Swift build artifacts
+*.hmap
+build/
+DerivedData/
+
+# App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Compiled Core ML models (commit .mlpackage source, not build output)
+*.mlmodelc/
+
+# Swift Package Manager
+.build/
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace

@@ -6,19 +6,42 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+  @State private var selectedPhotos: [PhotosPickerItem] = []
+  @State private var isRunning = false
+
+  var body: some View {
+    VStack(spacing: 16) {
+      PhotosPicker(
+        selection: $selectedPhotos,
+        maxSelectionCount: 200,
+        matching: .images
+      ) {
+        Label("Select Photos", systemImage: "photo.on.rectangle")
+      }
+
+      if !selectedPhotos.isEmpty {
+        Text("\(selectedPhotos.count) photos selected")
+          .font(.callout)
+          .foregroundStyle(.secondary)
+      }
+
+      Button(isRunning ? "Running…" : "Run") {
+        runPipeline()
+      }
+      .buttonStyle(.borderedProminent)
+      .disabled(selectedPhotos.isEmpty || isRunning)
     }
+    .padding()
+  }
+
+  private func runPipeline() {
+    isRunning = true
+  }
 }
 
 #Preview {
-    ContentView()
+  ContentView()
 }
