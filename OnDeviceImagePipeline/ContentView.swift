@@ -12,6 +12,16 @@ struct ContentView: View {
   @State private var selectedPhotos: [PhotosPickerItem] = []
   @State private var viewModel = PipelineViewModel()
 
+  private var statusLine: String {
+    if viewModel.isRunning {
+      return "Loading \(selectedPhotos.count) photos…"
+    }
+    if viewModel.loadedCount > 0 {
+      return "\(viewModel.loadedCount) images loaded"
+    }
+    return "\(selectedPhotos.count) photos selected"
+  }
+
   var body: some View {
     VStack(spacing: 16) {
       PhotosPicker(
@@ -22,25 +32,17 @@ struct ContentView: View {
         Label("Select Photos", systemImage: "photo.on.rectangle")
       }
 
-      if !selectedPhotos.isEmpty {
-        Text("\(selectedPhotos.count) photos selected")
+      if !selectedPhotos.isEmpty || viewModel.loadedCount > 0 {
+        Text(statusLine)
           .font(.callout)
           .foregroundStyle(.secondary)
       }
 
       Button(viewModel.isRunning ? "Running…" : "Run") {
-        Task {
-          await viewModel.start(with: selectedPhotos)
-        }
+        Task { await viewModel.start(with: selectedPhotos) }
       }
       .buttonStyle(.borderedProminent)
-      .disabled(selectedPhotos.isEmpty || viewModel.isRunning)
-
-      if !viewModel.isRunning && viewModel.loadedCount > 0 {
-        Text("\(viewModel.loadedCount) images loaded")
-          .font(.callout)
-          .foregroundStyle(.secondary)
-      }
+      .disabled(selectedPhotos.isEmpty || viewModel.isRunning || !viewModel.isReady)
     }
     .padding()
   }

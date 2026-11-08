@@ -10,15 +10,32 @@ import PhotosUI
 import UIKit
 
 enum RunState {
+  /// Model still loading — Run is gated; nothing can start yet.
+  case loadingModel
+
+  /// Model ready, idle — Run is enabled (given a selection).
   case idle
+
+  /// Batch in flight — Cancel is available, results stream in.
   case running
+
+  /// Model loaded but something is missing/limited (e.g. no Neural Engine fallback).
+  case degraded(String)
+
+  /// Terminal failure — model missing or failed to load. Run stays gated.
+  case failed(String)
 }
 
 @MainActor
 @Observable
 final class PipelineViewModel {
+  let service = TaggingService()
+  var state: RunState = .loadingModel
 
-  var state: RunState = .idle
+  var isReady: Bool {
+    if case .idle = state { return true }
+    return false
+  }
 
   var isRunning: Bool {
     if case .running = state { return true }
@@ -27,6 +44,17 @@ final class PipelineViewModel {
 
   private(set) var images: [CGImage] = []
   private(set) var loadedCount = 0
+
+  init() {
+    Task {
+      do {
+        try await service.loadModel(profile: .cpuAndNeuralEngine)
+        state = .idle
+      } catch {
+        state = .failed("Model failed to load: \(error.localizedDescription)")
+      }
+    }
+  }
 
   func start(with items: [PhotosPickerItem]) async {
     state = .running
