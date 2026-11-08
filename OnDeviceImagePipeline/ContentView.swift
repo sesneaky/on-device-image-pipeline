@@ -10,7 +10,7 @@ import PhotosUI
 
 struct ContentView: View {
   @State private var selectedPhotos: [PhotosPickerItem] = []
-  @State private var isRunning = false
+  @State private var viewModel = PipelineViewModel()
 
   var body: some View {
     VStack(spacing: 16) {
@@ -28,17 +28,21 @@ struct ContentView: View {
           .foregroundStyle(.secondary)
       }
 
-      Button(isRunning ? "Running…" : "Run") {
-        runPipeline()
+      Button(viewModel.isRunning ? "Running…" : "Run") {
+        Task {
+          await viewModel.start(with: selectedPhotos)
+        }
       }
       .buttonStyle(.borderedProminent)
-      .disabled(selectedPhotos.isEmpty || isRunning)
+      .disabled(selectedPhotos.isEmpty || viewModel.isRunning)
+
+      if !viewModel.isRunning && viewModel.loadedCount > 0 {
+        Text("\(viewModel.loadedCount) images loaded")
+          .font(.callout)
+          .foregroundStyle(.secondary)
+      }
     }
     .padding()
-  }
-
-  private func runPipeline() {
-    isRunning = true
   }
 }
 
