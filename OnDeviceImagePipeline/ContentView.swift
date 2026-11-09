@@ -16,8 +16,8 @@ struct ContentView: View {
     if viewModel.isRunning {
       return "Loading \(selectedPhotos.count) photos…"
     }
-    if viewModel.loadedCount > 0 {
-      return "\(viewModel.loadedCount) images loaded"
+    if !viewModel.results.isEmpty {
+      return "\(selectedPhotos.count) photos selected"
     }
     return "\(selectedPhotos.count) photos selected"
   }
@@ -32,7 +32,7 @@ struct ContentView: View {
         Label("Select Photos", systemImage: "photo.on.rectangle")
       }
 
-      if !selectedPhotos.isEmpty || viewModel.loadedCount > 0 {
+      if !selectedPhotos.isEmpty {
         Text(statusLine)
           .font(.callout)
           .foregroundStyle(.secondary)
@@ -43,11 +43,15 @@ struct ContentView: View {
       }
       .buttonStyle(.borderedProminent)
       .disabled(selectedPhotos.isEmpty || viewModel.isRunning || !viewModel.isReady)
+
+      if !viewModel.results.isEmpty {
+        Text(viewModel.results[0].label)
+          .font(.headline)
+      }
     }
     .padding()
   }
 }
-
 #Preview {
   ContentView()
 }

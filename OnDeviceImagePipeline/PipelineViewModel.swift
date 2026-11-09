@@ -42,8 +42,7 @@ final class PipelineViewModel {
     return false
   }
 
-  private(set) var images: [CGImage] = []
-  private(set) var loadedCount = 0
+  private(set) var results: [ImageResult] = []
 
   init() {
     Task {
@@ -58,13 +57,22 @@ final class PipelineViewModel {
 
   func start(with items: [PhotosPickerItem]) async {
     state = .running
-    images = []
-    loadedCount = 0
+    results = []
 
-    images = await loadImages(items)
-    loadedCount = images.count
+    let images = await loadImages(items)
 
-    state = .idle
+    guard let first = images.first else {
+      state = .failed("No photos could be loaded")
+      return
+    }
+
+    do {
+      let result = try await service.run(on: first)
+      results = [result]
+      state = .idle
+    } catch {
+      state = .failed("Inference failed: \(error.localizedDescription)")
+    }
   }
 
   private func loadImages(
