@@ -74,7 +74,7 @@ final class TaggingService {
 
   private static func makeResult(obs: [any VisionObservation], duration: Duration) throws -> ImageResult {
     let classes = obs.compactMap { $0 as? ClassificationObservation }
-        .sorted { $0.confidence > $1.confidence }
+      .sorted { $0.confidence > $1.confidence }
 
     guard let top = classes.first else {
       throw TaggingError.noResults

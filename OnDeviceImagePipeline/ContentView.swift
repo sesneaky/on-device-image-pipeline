@@ -45,8 +45,15 @@ struct ContentView: View {
       .disabled(selectedPhotos.isEmpty || viewModel.isRunning || !viewModel.isReady)
 
       if !viewModel.results.isEmpty {
-        Text(viewModel.results[0].label)
-          .font(.headline)
+        List(viewModel.results) { result in
+          HStack {
+            Text(result.label)
+            Spacer()
+            Text(result.duration.formatted(.units(allowed: [.milliseconds], width: .narrow)))
+              .monospacedDigit()
+              .foregroundStyle(.secondary)
+          }
+        } 
       }
     }
     .padding()

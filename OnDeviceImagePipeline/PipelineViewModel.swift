@@ -67,8 +67,11 @@ final class PipelineViewModel {
     }
 
     do {
-      let result = try await service.run(on: first)
-      results = [result]
+      for _ in 1...2 {                              // two passes to account for cold start
+        let result = try await service.run(on: first)
+        results.append(result)
+        print("inference: \(result.duration)")
+      }
       state = .idle
     } catch {
       state = .failed("Inference failed: \(error.localizedDescription)")
